@@ -6,7 +6,7 @@ const sassModuleRegex = /\.module\.(scss|sass|css)$/
 module.exports = {
 	entry: './src/index',
 	output: {
-		path: path.join(__dirname, 'public/main.js'),
+		path: path.join(__dirname, 'public'),
 		filename: 'main.js'
 	},
 	devServer: {
