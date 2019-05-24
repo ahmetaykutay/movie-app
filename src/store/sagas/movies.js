@@ -1,16 +1,24 @@
-import { fork, takeEvery, put, all } from 'redux-saga/effects'
+import { fork, takeEvery, put } from 'redux-saga/effects'
 import { SEARCH_MOVIES } from '../actions/actionTypes'
 import { searchMoviesDone } from '../actions/movies'
+import store from '../'
 import api from '../../core/api'
 
 function* searchMovies(action) {
+	const { currentPage, movieList } = store.getState().movies
 	let error, data
 	try {
-		const res = yield api.search(action.payload)
+		const res = yield api.search(action.payload, currentPage)
 		if (res.Error) {
 			error = res.Error
 		} else {
-			data = Array.isArray(res) ? res : [res]
+			if (currentPage === 1)
+				data = Array.isArray(res.Search) ? res.Search : [res.Search]
+			else
+				data = [
+					...movieList,
+					...(Array.isArray(res.Search) ? res.Search : [res.Search])
+				]
 		}
 	} catch (err) {
 		error = err

@@ -1,7 +1,7 @@
 import React from 'react'
 import classes from './SearchBox.module.scss'
 
-export default function SearchBox({ onChange, inputDelay }) {
+export default function SearchBox({ onChange, inputDelay, value }) {
 	let timeout
 
 	const handleInputChange = val => {
@@ -12,6 +12,7 @@ export default function SearchBox({ onChange, inputDelay }) {
 
 	return (
 		<input
+			value={value}
 			onKeyDown={() => {
 				clearTimeout(timeout)
 			}}
@@ -22,5 +23,5 @@ export default function SearchBox({ onChange, inputDelay }) {
 }
 
 SearchBox.defaultProps = {
-  inputDelay: 300
+	inputDelay: 300
 }

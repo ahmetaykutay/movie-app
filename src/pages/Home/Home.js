@@ -5,65 +5,94 @@ import { actions } from '../../store'
 import { getGridArray, isMobile } from '../../utils'
 import classes from './Home.module.scss'
 
-function Home({ searchMovies, movieList, history, error }) {
-	const [searchText, setSearchText] = useState('')
-	const [cardPerRow, setCardPerRow] = useState(3)
-	const [rowData, setRowData] = useState([])
-
-	useEffect(() => {
-		const resizeListener = () => {
-			setCardPerRow(isMobile() ? 2 : 3)
+class Home extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			searchText: '',
+			cardPerRow: 3
 		}
-		window.addEventListener('resize', resizeListener)
-		setCardPerRow(isMobile() ? 2 : 3)
-		return () => {
-			window.removeEventListener('resize', resizeListener)
+	}
+	componentDidMount() {
+		window.addEventListener('resize', this.resizeListener)
+		window.addEventListener('scroll', this.handleIninitefScroll)
+		this.setState({ cardPerRow: isMobile() ? 2 : 3 })
+	}
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.resizeListener)
+		window.removeEventListener('scroll', this.handleIninitefScroll)
+	}
+
+	resizeListener = () => {
+		this.setState({ cardPerRow: isMobile() ? 2 : 3 })
+	}
+
+	handleIninitefScroll = e => {
+		const { searchMovies, currentPage, isLoading } = this.props
+		const { searchText } = this.state
+		if (isLoading) {
+			return
 		}
-	}, [])
+		const lastElement = document.querySelector(
+			`.${classes.content} > .scroll-el:last-child`
+		)
+		const lastElementOffset =
+			lastElement.offsetTop + lastElement.clientHeight - 350
+		const pageOffset = window.pageYOffset + window.innerHeight
+		if (pageOffset > lastElementOffset)
+			searchMovies(searchText, currentPage + 1)
+	}
 
-	useEffect(() => {
-		setRowData(getGridArray(movieList, cardPerRow))
-		return () => {}
-	}, [movieList, cardPerRow])
-
-	useEffect(() => {
+	handleSearchTextChange = searchText => {
+		const { searchMovies } = this.props
+		this.setState({ searchText })
 		if (searchText.length > 2) {
 			searchMovies(searchText)
 		}
-	}, [searchText])
+	}
 
-	return (
-		<div className="page">
-			<SearchBox onChange={setSearchText} />
-			<div className={classes.content}>
-				{error ? <p>{error}</p> : null}
-				{rowData.map((row, i) => (
-					<div className="row" key={`row-${i}`}>
-						{row.map((column, j) => (
-							<MovieCard
-								key={column.imdbID + j}
-								title={column.Title}
-								genre={column.Genre}
-								imgSrc={column.Poster}
-								onClick={() => {
-									history.push(`/detail/${column.imdbID}`, { data: column })
-								}}
-							/>
-						))}
-					</div>
-				))}
+	render() {
+		const { history, error, isLoading, movieList } = this.props
+		const { cardPerRow } = this.state
+		const rowData = getGridArray(movieList, cardPerRow)
+		return (
+			<div className="page">
+				<SearchBox onChange={this.handleSearchTextChange} />
+				<div className={classes.content}>
+					{error ? <p>{error}</p> : null}
+					{rowData.map((row, i) => (
+						<div className="row scroll-el" key={`row-${i}`}>
+							{row.map((column, j) => (
+								<MovieCard
+									key={column.imdbID + j}
+									title={column.Title}
+									type={column.Type}
+									year={column.Year}
+									imgSrc={column.Poster}
+									onClick={() => {
+										history.push(`/detail/${column.imdbID}`, { data: column })
+									}}
+								/>
+							))}
+						</div>
+					))}
+					{isLoading ? <p>loading...</p> : null}
+				</div>
 			</div>
-		</div>
-	)
+		)
+	}
 }
 
 const mapStateToProps = state => ({
 	movieList: state.movies.movieList,
-	error: state.movies.error
+	error: state.movies.error,
+	isLoading: state.movies.isLoading,
+	currentPage: state.movies.currentPage
 })
 
 const mapDispatchToProps = dispatch => ({
-	searchMovies: searchText => dispatch(actions.movies.searchMovies(searchText))
+	searchMovies: (searchText, page) =>
+		dispatch(actions.movies.searchMovies({ searchText, page }))
 })
 
 export default connect(
