@@ -6,7 +6,7 @@ export default function AppRouter() {
 	return (
 		<Router>
 			<Route path="/" exact component={Home} />
-			<Route path="/detail/" component={Detail} />
+			<Route path="/detail/:imdbID" component={Detail} />
 		</Router>
 	)
 }

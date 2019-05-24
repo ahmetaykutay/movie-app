@@ -5,7 +5,7 @@ import { actions } from '../../store'
 import { getGridArray, isMobile } from '../../utils'
 import classes from './Home.module.scss'
 
-function Home({ searchMovies, movieList }) {
+function Home({ searchMovies, movieList, history }) {
 	const [searchText, setSearchText] = useState('')
 	const [cardPerRow, setCardPerRow] = useState(3)
 	const [rowData, setRowData] = useState([])
@@ -14,6 +14,8 @@ function Home({ searchMovies, movieList }) {
 		const resizeListener = () => {
 			setCardPerRow(isMobile() ? 2 : 3)
 		}
+		// TODO for debug, reme later
+		searchMovies()
 		window.addEventListener('resize', resizeListener)
 		setCardPerRow(isMobile() ? 2 : 3)
 		return () => {
@@ -44,7 +46,9 @@ function Home({ searchMovies, movieList }) {
 								title={column.Title}
 								genre={column.Genre}
 								imgSrc={column.Poster}
-								onClick={() => {}}
+								onClick={() => {
+									history.push(`/detail/${column.imdbID}`, { data: column })
+								}}
 							/>
 						))}
 					</div>
