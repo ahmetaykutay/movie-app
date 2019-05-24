@@ -3,8 +3,8 @@ import { SearchBox } from '../../components'
 
 export default function Home() {
 	return (
-		<div id="page-home">
-			<SearchBox />
+		<div className="page">
+			<SearchBox onChange={text => {console.log(text)}} />
 		</div>
 	)
 }
