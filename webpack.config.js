@@ -1,6 +1,8 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
+const sassModuleRegex = /\.module\.(scss|sass|css)$/
+
 module.exports = {
 	entry: './src/index',
 	output: {
@@ -19,6 +21,7 @@ module.exports = {
 			},
 			{
 				test: /\.(sa|sc|c)ss$/,
+				exclude: sassModuleRegex,
 				use: [
 					{
 						loader: MiniCssExtractPlugin.loader,
@@ -30,13 +33,29 @@ module.exports = {
 					'postcss-loader',
 					'sass-loader'
 				]
+			},
+			{
+				test: sassModuleRegex,
+				use: [
+					'style-loader',
+					{
+						loader: require.resolve('css-loader'),
+						options: {
+							importLoaders: 1,
+							modules: true,
+							localIdentName: '[name]-[local]-[hash:base64]'
+						}
+					},
+					'postcss-loader',
+					'sass-loader'
+				]
 			}
 		]
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
-    }),
-  ],
+	},
+	plugins: [
+		new MiniCssExtractPlugin({
+			filename: '[name].css',
+			chunkFilename: '[id].css'
+		})
+	]
 }
