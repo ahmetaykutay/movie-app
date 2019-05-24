@@ -5,7 +5,7 @@ import { actions } from '../../store'
 import { getGridArray, isMobile } from '../../utils'
 import classes from './Home.module.scss'
 
-function Home({ searchMovies, movieList, history }) {
+function Home({ searchMovies, movieList, history, error }) {
 	const [searchText, setSearchText] = useState('')
 	const [cardPerRow, setCardPerRow] = useState(3)
 	const [rowData, setRowData] = useState([])
@@ -14,8 +14,6 @@ function Home({ searchMovies, movieList, history }) {
 		const resizeListener = () => {
 			setCardPerRow(isMobile() ? 2 : 3)
 		}
-		// TODO for debug, reme later
-		searchMovies()
 		window.addEventListener('resize', resizeListener)
 		setCardPerRow(isMobile() ? 2 : 3)
 		return () => {
@@ -38,6 +36,7 @@ function Home({ searchMovies, movieList, history }) {
 		<div className="page">
 			<SearchBox onChange={setSearchText} />
 			<div className={classes.content}>
+				{error ? <p>{error}</p> : null}
 				{rowData.map((row, i) => (
 					<div className="row" key={`row-${i}`}>
 						{row.map((column, j) => (
@@ -59,7 +58,8 @@ function Home({ searchMovies, movieList, history }) {
 }
 
 const mapStateToProps = state => ({
-	movieList: state.movies.movieList
+	movieList: state.movies.movieList,
+	error: state.movies.error
 })
 
 const mapDispatchToProps = dispatch => ({

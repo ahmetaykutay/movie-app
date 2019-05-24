@@ -4,8 +4,6 @@ import classes from './Detail.module.scss'
 export default function Detail({ location }) {
 	const { data } = location.state
 	if (!data) {
-		// handle error here
-		console.log(location)
 		return (
 			<div>
 				<p>opps! there is an error</p>
